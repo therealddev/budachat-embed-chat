@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Chat Widget Dev</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Widget</title>
   </head>
   <body>
-    <h1>Chat Widget Development Page</h1>
-
-    
     <script>
-      window.addEventListener("load", function () {
-        window.initChatWidget();
-      });
+      window.config = {
+        businessId: 1, // Replace with actual business ID
+      };
     </script>
     <script src="widget.bundle.js"></script>
+    <script>
+      window.initChatWidget(window.config.businessId);
+    </script>
   </body>
 </html>
