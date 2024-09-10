@@ -27,6 +27,11 @@ function createChatWidget(businessId) {
   const send = document.getElementById('chat-send');
   const messages = document.getElementById('chat-messages');
 
+  const API_URL =
+    process.env.NODE_ENV === 'production'
+      ? 'https://www.budachat.com/api/chat'
+      : 'http://localhost:3000/api/chat';
+
   send.onclick = async () => {
     if (input.value) {
       const userMessage = input.value;
@@ -42,7 +47,7 @@ function createChatWidget(businessId) {
 
       // Send message to the API
       try {
-        const response = await fetch('http://localhost:3000/api/chat', {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
