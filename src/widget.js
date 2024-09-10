@@ -1,19 +1,25 @@
 function createChatWidget(businessId) {
   const widget = document.createElement('div');
   widget.style.position = 'fixed';
-  widget.style.bottom = '0';
-  widget.style.right = '0';
-  widget.style.width = '300px';
-  widget.style.height = '400px';
-  widget.style.border = '1px solid #ccc';
-  widget.style.borderRadius = '10px 10px 0 0';
-  widget.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
-  widget.style.backgroundColor = '#fff';
+  widget.style.bottom = '20px';
+  widget.style.right = '20px';
   widget.style.display = 'flex';
   widget.style.flexDirection = 'column';
-  widget.style.overflow = 'hidden';
+  widget.style.alignItems = 'flex-end';
 
-  widget.innerHTML = `
+  const chatContainer = document.createElement('div');
+  chatContainer.style.width = '300px';
+  chatContainer.style.height = '400px';
+  chatContainer.style.border = '1px solid #ccc';
+  chatContainer.style.borderRadius = '10px';
+  chatContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+  chatContainer.style.backgroundColor = '#fff';
+  chatContainer.style.display = 'none';
+  chatContainer.style.flexDirection = 'column';
+  chatContainer.style.overflow = 'hidden';
+  chatContainer.style.marginBottom = '10px';
+
+  chatContainer.innerHTML = `
       <div id="chat-header" style="background-color: #007bff; color: white; padding: 10px; text-align: center; font-weight: bold;">Chat</div>
       <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; border-top: 1px solid #ccc;"></div>
       <div style="display: flex; border-top: 1px solid #ccc;">
@@ -21,7 +27,26 @@ function createChatWidget(businessId) {
         <button id="chat-send" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">Send</button>
       </div>
     `;
+  const toggleButton = document.createElement('button');
+  toggleButton.style.width = '60px';
+  toggleButton.style.height = '60px';
+  toggleButton.style.borderRadius = '50%';
+  toggleButton.style.backgroundColor = '#007bff';
+  toggleButton.style.color = 'white';
+  toggleButton.style.border = 'none';
+  toggleButton.style.cursor = 'pointer';
+  toggleButton.style.fontSize = '24px';
+  toggleButton.innerHTML = '&#128172;'; // Speech bubble emoji
+
+  widget.appendChild(chatContainer);
+  widget.appendChild(toggleButton);
   document.body.appendChild(widget);
+
+  // Toggle chat visibility
+  toggleButton.onclick = () => {
+    chatContainer.style.display =
+      chatContainer.style.display === 'none' ? 'flex' : 'none';
+  };
 
   const input = document.getElementById('chat-input');
   const send = document.getElementById('chat-send');
