@@ -24,6 +24,11 @@ module.exports = {
   devServer: {
     static: './dist',
     hot: true,
+    open: false,
+    client: {
+      overlay: true,
+      logging: 'error',
+    },
   },
   mode: 'development',
 };
