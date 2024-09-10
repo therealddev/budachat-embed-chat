@@ -21,10 +21,16 @@ function createChatWidget(businessId) {
 
   chatContainer.innerHTML = `
       <div id="chat-header" style="background-color: #007bff; color: white; padding: 10px; text-align: center; font-weight: bold;">Chat</div>
-      <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; border-top: 1px solid #ccc;"></div>
-      <div style="display: flex; border-top: 1px solid #ccc;">
-        <input id="chat-input" type="text" style="flex: 1; padding: 10px; border: none; border-top-left-radius: 0; border-top-right-radius: 0;">
-        <button id="chat-send" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">Send</button>
+      <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
+      <div style="padding: 10px;">
+        <div style="display: flex; align-items: center; background-color: #f0f0f0; border-radius: 9999px; padding: 5px;">
+          <input id="chat-input" type="text" placeholder="Type a message..." style="flex: 1; padding: 10px; border: none; background: transparent; outline: none;">
+          <button id="chat-send" style="width: 40px; height: 40px; border-radius: 50%; background-color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 5px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 14 14" style="width: 20px; height: 20px;">
+              <path fill="black" fill-rule="evenodd" d="M13.854.146a.5.5 0 0 1 .113.534l-5 13a.5.5 0 0 1-.922.027l-2.091-4.6L9.03 6.03a.75.75 0 0 0-1.06-1.06L4.893 8.046l-4.6-2.09a.5.5 0 0 1 .028-.923l13-5a.5.5 0 0 1 .533.113" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
       </div>
     `;
   const toggleButton = document.createElement('button');
