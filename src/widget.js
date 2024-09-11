@@ -1,4 +1,14 @@
-function createChatWidget(businessId) {
+////////////////////////////////////////////////////
+
+// PRODUCTION
+// const API_URL = 'https://www.budachat.com/api';
+
+// DEVELOPMENT
+const API_URL = 'http://localhost:3000/api';
+
+////////////////////////////////////////////////////
+
+async function createChatWidget(businessId) {
   const widget = document.createElement('div');
   widget.id = 'chat-widget';
   widget.style.position = 'fixed';
@@ -128,6 +138,35 @@ function createChatWidget(businessId) {
   toggleButton.onclick = toggleChat;
   closeButton.onclick = toggleChat;
 
+  // Fetch business details from the API
+  try {
+    const response = await fetch(`${API_URL}/business/${businessId}`);
+    const businessData = await response.json();
+    const { name, logo_url, color } = businessData;
+
+    // Update chat header with business name and logo
+    const chatHeader = document.getElementById('chat-header');
+    chatHeader.innerHTML = `
+      <img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">
+      ${name}
+      <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 20px; cursor: pointer; display: none;">✕</button>
+    `;
+
+    // Update color scheme based on business color
+    const style = document.createElement('style');
+    style.textContent = `
+      #chat-header {
+        background-color: ${color};
+      }
+      #toggle-button {
+        background-color: ${color};
+      }
+    `;
+    document.head.appendChild(style);
+  } catch (error) {
+    console.error('Error fetching business details:', error);
+  }
+
   // Handle resize events
   window.addEventListener('resize', () => {
     if (window.innerWidth > 768) {
@@ -162,11 +201,6 @@ function createChatWidget(businessId) {
   const send = document.getElementById('chat-send');
   const messages = document.getElementById('chat-messages');
 
-  const API_URL =
-    process.env.NODE_ENV === 'production'
-      ? 'https://www.budachat.com/api/chat'
-      : 'http://localhost:3000/api/chat';
-
   const sendMessage = async () => {
     if (input.value) {
       const userMessage = input.value;
@@ -182,7 +216,7 @@ function createChatWidget(businessId) {
 
       // Send message to the API
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
