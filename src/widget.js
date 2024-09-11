@@ -9,6 +9,7 @@ const API_URL = 'http://localhost:3000/api';
 ////////////////////////////////////////////////////
 
 async function createChatWidget(businessId) {
+  // Create elements but don't append them to the document yet
   const widget = document.createElement('div');
   widget.id = 'chat-widget';
   widget.style.position = 'fixed';
@@ -70,10 +71,6 @@ async function createChatWidget(businessId) {
 
   toggleButton.innerHTML = chatIcon;
 
-  widget.appendChild(chatContainer);
-  widget.appendChild(toggleButton);
-  document.body.appendChild(widget);
-
   // Add Poppins font
   const fontLink = document.createElement('link');
   fontLink.href =
@@ -124,142 +121,158 @@ async function createChatWidget(businessId) {
   `;
   document.head.appendChild(style);
 
-  const closeButton = document.getElementById('close-chat');
-  const toggleChat = () => {
-    const isChatVisible = chatContainer.style.display !== 'none';
-    chatContainer.style.display = isChatVisible ? 'none' : 'flex';
-    toggleButton.innerHTML = isChatVisible ? chatIcon : closeIcon;
-    if (window.innerWidth <= 768) {
-      toggleButton.style.display = isChatVisible ? 'block' : 'none';
-      document.body.style.overflow = isChatVisible ? 'auto' : 'hidden';
-    }
-  };
-
-  toggleButton.onclick = toggleChat;
-  closeButton.onclick = toggleChat;
-
   // Fetch business details from the API
   try {
     const response = await fetch(`${API_URL}/business/${businessId}`);
     const businessData = await response.json();
     const { name, logo_url, color } = businessData;
 
-    // Update chat header with business name and logo
-    const chatHeader = document.getElementById('chat-header');
+    // Update chat header with business name, logo, and color
+    const chatHeader = chatContainer.querySelector('#chat-header');
     chatHeader.innerHTML = `
       <img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">
       ${name}
       <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 20px; cursor: pointer; display: none;">✕</button>
     `;
 
-    // Update color scheme based on business color
+    // Apply color scheme based on business color
     const style = document.createElement('style');
     style.textContent = `
       #chat-header {
-        background-color: ${color};
+        background-color: ${color} !important;
       }
       #toggle-button {
-        background-color: ${color};
+        background-color: ${color} !important;
+      }
+      #chat-send {
+        background-color: ${color} !important;
+      }
+      #chat-send svg path {
+        fill: white !important;
+      }
+      .user-message {
+        background-color: ${color} !important;
+        color: white !important;
       }
     `;
     document.head.appendChild(style);
+
+    // Set toggle button color
+    toggleButton.style.backgroundColor = color;
+
+    // Now that we have the business data, append elements to the document
+    widget.appendChild(chatContainer);
+    widget.appendChild(toggleButton);
+    document.body.appendChild(widget);
+
+    // Add event listeners and other functionality
+    const closeButton = chatContainer.querySelector('#close-chat');
+    const toggleChat = () => {
+      const isChatVisible = chatContainer.style.display !== 'none';
+      chatContainer.style.display = isChatVisible ? 'none' : 'flex';
+      toggleButton.innerHTML = isChatVisible ? chatIcon : closeIcon;
+      if (window.innerWidth <= 768) {
+        toggleButton.style.display = isChatVisible ? 'block' : 'none';
+        document.body.style.overflow = isChatVisible ? 'auto' : 'hidden';
+      }
+    };
+
+    toggleButton.onclick = toggleChat;
+    closeButton.onclick = toggleChat;
+
+    // Set up chat input and send functionality
+    const input = chatContainer.querySelector('#chat-input');
+    const send = chatContainer.querySelector('#chat-send');
+    const messages = chatContainer.querySelector('#chat-messages');
+
+    const sendMessage = async () => {
+      if (input.value) {
+        const userMessage = input.value;
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<div class="user-message">${userMessage}</div>`;
+        messageElement.style.display = 'flex';
+        messageElement.style.justifyContent = 'flex-end';
+        messageElement.style.margin = '10px 0';
+        messageElement.firstChild.style.maxWidth = '70%';
+        messageElement.firstChild.style.padding = '8px 12px';
+        messageElement.firstChild.style.borderRadius = '18px 18px 0 18px';
+        messages.appendChild(messageElement);
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+
+        // Send message to the API
+        try {
+          const response = await fetch(`${API_URL}/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              businessId: businessId,
+              messages: [{ role: 'user', content: userMessage }],
+            }),
+          });
+
+          const data = await response.json();
+          const botMessage = document.createElement('div');
+          botMessage.innerHTML = `<div>${data.reply}</div>`;
+          botMessage.style.display = 'flex';
+          botMessage.style.justifyContent = 'flex-start';
+          botMessage.style.margin = '10px 0';
+          botMessage.firstChild.style.maxWidth = '70%';
+          botMessage.firstChild.style.padding = '8px 12px';
+          botMessage.firstChild.style.backgroundColor = '#f1f0f0';
+          botMessage.firstChild.style.borderRadius = '18px 18px 18px 0';
+          messages.appendChild(botMessage);
+          messages.scrollTop = messages.scrollHeight;
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    };
+
+    send.onclick = sendMessage;
+
+    // Add event listener for Enter key press
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        sendMessage();
+      }
+    });
+
+    // Handle resize events
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        // Reset styles for desktop view
+        chatContainer.style.removeProperty('position');
+        chatContainer.style.removeProperty('top');
+        chatContainer.style.removeProperty('left');
+        chatContainer.style.removeProperty('right');
+        chatContainer.style.removeProperty('bottom');
+        chatContainer.style.width = '400px';
+        chatContainer.style.height = '600px';
+        chatContainer.style.maxHeight = '80vh';
+        chatContainer.style.margin = '0 0 10px 0';
+        chatContainer.style.borderRadius = '10px';
+        toggleButton.style.display = 'flex';
+        document.body.style.overflow = 'auto';
+        toggleButton.innerHTML =
+          chatContainer.style.display !== 'none' ? closeIcon : chatIcon;
+      } else {
+        // Apply mobile styles
+        if (chatContainer.style.display !== 'none') {
+          toggleButton.style.display = 'none';
+          document.body.style.overflow = 'hidden';
+        } else {
+          toggleButton.style.display = 'flex';
+          toggleButton.innerHTML = chatIcon;
+        }
+      }
+    });
   } catch (error) {
     console.error('Error fetching business details:', error);
   }
-
-  // Handle resize events
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) {
-      // Reset styles for desktop view
-      chatContainer.style.removeProperty('position');
-      chatContainer.style.removeProperty('top');
-      chatContainer.style.removeProperty('left');
-      chatContainer.style.removeProperty('right');
-      chatContainer.style.removeProperty('bottom');
-      chatContainer.style.width = '400px';
-      chatContainer.style.height = '600px';
-      chatContainer.style.maxHeight = '80vh';
-      chatContainer.style.margin = '0 0 10px 0';
-      chatContainer.style.borderRadius = '10px';
-      toggleButton.style.display = 'flex';
-      document.body.style.overflow = 'auto';
-      toggleButton.innerHTML =
-        chatContainer.style.display !== 'none' ? closeIcon : chatIcon;
-    } else {
-      // Apply mobile styles
-      if (chatContainer.style.display !== 'none') {
-        toggleButton.style.display = 'none';
-        document.body.style.overflow = 'hidden';
-      } else {
-        toggleButton.style.display = 'flex';
-        toggleButton.innerHTML = chatIcon;
-      }
-    }
-  });
-
-  const input = document.getElementById('chat-input');
-  const send = document.getElementById('chat-send');
-  const messages = document.getElementById('chat-messages');
-
-  const sendMessage = async () => {
-    if (input.value) {
-      const userMessage = input.value;
-      const messageElement = document.createElement('div');
-      messageElement.innerHTML = `<div>${userMessage}</div>`;
-      messageElement.style.display = 'flex';
-      messageElement.style.justifyContent = 'flex-end';
-      messageElement.style.margin = '10px 0';
-      messageElement.firstChild.style.maxWidth = '70%';
-      messageElement.firstChild.style.padding = '8px 12px';
-      messageElement.firstChild.style.backgroundColor = '#007bff';
-      messageElement.firstChild.style.color = 'white';
-      messageElement.firstChild.style.borderRadius = '18px 18px 0 18px';
-      messages.appendChild(messageElement);
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
-
-      // Send message to the API
-      try {
-        const response = await fetch(`${API_URL}/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            businessId: businessId,
-            messages: [{ role: 'user', content: userMessage }],
-          }),
-        });
-
-        const data = await response.json();
-        const botMessage = document.createElement('div');
-        botMessage.innerHTML = `<div>${data.reply}</div>`;
-        botMessage.style.display = 'flex';
-        botMessage.style.justifyContent = 'flex-start';
-        botMessage.style.margin = '10px 0';
-        botMessage.firstChild.style.maxWidth = '70%';
-        botMessage.firstChild.style.padding = '8px 12px';
-        botMessage.firstChild.style.backgroundColor = '#f1f0f0';
-        botMessage.firstChild.style.borderRadius = '18px 18px 18px 0';
-        messages.appendChild(botMessage);
-        messages.scrollTop = messages.scrollHeight;
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  };
-
-  send.onclick = sendMessage;
-
-  // Add event listener for Enter key press
-  input.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission
-      sendMessage();
-    }
-  });
-
-  // ... existing code ...
 }
 
 if (module.hot) {
