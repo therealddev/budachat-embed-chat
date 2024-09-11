@@ -205,14 +205,18 @@ async function createChatWidget(businessId) {
     if (input.value) {
       const userMessage = input.value;
       const messageElement = document.createElement('div');
-      messageElement.textContent = userMessage;
-      messageElement.style.padding = '5px';
-      messageElement.style.margin = '5px 0';
-      messageElement.style.backgroundColor = '#f1f1f1';
-      messageElement.style.borderRadius = '5px';
+      messageElement.innerHTML = `<div>${userMessage}</div>`;
+      messageElement.style.display = 'flex';
+      messageElement.style.justifyContent = 'flex-end';
+      messageElement.style.margin = '10px 0';
+      messageElement.firstChild.style.maxWidth = '70%';
+      messageElement.firstChild.style.padding = '8px 12px';
+      messageElement.firstChild.style.backgroundColor = '#007bff';
+      messageElement.firstChild.style.color = 'white';
+      messageElement.firstChild.style.borderRadius = '18px 18px 0 18px';
       messages.appendChild(messageElement);
       input.value = '';
-      messages.scrollTop = messages.scrollHeight; // Scroll to the bottom
+      messages.scrollTop = messages.scrollHeight;
 
       // Send message to the API
       try {
@@ -229,13 +233,16 @@ async function createChatWidget(businessId) {
 
         const data = await response.json();
         const botMessage = document.createElement('div');
-        botMessage.textContent = data.reply;
-        botMessage.style.padding = '5px';
-        botMessage.style.margin = '5px 0';
-        botMessage.style.backgroundColor = '#e1f5fe';
-        botMessage.style.borderRadius = '5px';
+        botMessage.innerHTML = `<div>${data.reply}</div>`;
+        botMessage.style.display = 'flex';
+        botMessage.style.justifyContent = 'flex-start';
+        botMessage.style.margin = '10px 0';
+        botMessage.firstChild.style.maxWidth = '70%';
+        botMessage.firstChild.style.padding = '8px 12px';
+        botMessage.firstChild.style.backgroundColor = '#f1f0f0';
+        botMessage.firstChild.style.borderRadius = '18px 18px 18px 0';
         messages.appendChild(botMessage);
-        messages.scrollTop = messages.scrollHeight; // Scroll to the bottom
+        messages.scrollTop = messages.scrollHeight;
       } catch (error) {
         console.error('Error:', error);
       }
