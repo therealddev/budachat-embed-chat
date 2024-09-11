@@ -8,6 +8,8 @@ const API_URL = 'http://localhost:3000/api';
 
 ////////////////////////////////////////////////////
 
+let chatSessionId;
+
 async function createChatWidget(businessId) {
   // Create elements but don't append them to the document yet
   const widget = document.createElement('div');
@@ -184,13 +186,16 @@ async function createChatWidget(businessId) {
 
     // Add event listeners and other functionality
     const closeButton = chatContainer.querySelector('#close-chat');
-    const toggleChat = () => {
+    const toggleChat = async () => {
       const isChatVisible = chatContainer.style.display !== 'none';
       chatContainer.style.display = isChatVisible ? 'none' : 'flex';
       toggleButton.innerHTML = isChatVisible ? chatIcon : closeIcon;
       if (window.innerWidth <= 768) {
         toggleButton.style.display = isChatVisible ? 'block' : 'none';
         document.body.style.overflow = isChatVisible ? 'auto' : 'hidden';
+      }
+      if (!isChatVisible && !chatSessionId) {
+        await createSession();
       }
     };
 
@@ -220,7 +225,7 @@ async function createChatWidget(businessId) {
     let isGeneratingResponse = false;
 
     const sendMessage = async () => {
-      if (input.value.trim() && !isGeneratingResponse) {
+      if (input.value.trim() && !isGeneratingResponse && chatSessionId) {
         isGeneratingResponse = true;
         send.disabled = true;
 
@@ -275,7 +280,7 @@ async function createChatWidget(businessId) {
         `;
         document.head.appendChild(style);
 
-        // Send message to the API
+        // Generate AI response
         try {
           const response = await fetch(`${API_URL}/chat`, {
             method: 'POST',
@@ -283,8 +288,9 @@ async function createChatWidget(businessId) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              businessId: businessId,
+              businessId,
               messages: [{ role: 'user', content: userMessage }],
+              chatSessionId,
             }),
           });
 
@@ -305,6 +311,19 @@ async function createChatWidget(businessId) {
           botMessage.firstChild.style.borderRadius = '18px 18px 18px 0';
           messages.appendChild(botMessage);
           messages.scrollTop = messages.scrollHeight;
+
+          // Save both user and AI messages to the database
+          await fetch(`${API_URL}/save-messages`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chatSessionId,
+              userMessage,
+              aiMessage: data.reply,
+            }),
+          });
         } catch (error) {
           console.error('Error:', error);
           // Remove typing indicator in case of error
@@ -362,6 +381,23 @@ async function createChatWidget(businessId) {
         }
       }
     });
+
+    // Create a new chat session when the widget is opened
+    const createSession = async () => {
+      try {
+        const response = await fetch(`${API_URL}/create-chat-session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ businessId }),
+        });
+        const data = await response.json();
+        chatSessionId = data.chatSessionId;
+      } catch (error) {
+        console.error('Error creating chat session:', error);
+      }
+    };
   } catch (error) {
     console.error('Error fetching business details:', error);
   }
