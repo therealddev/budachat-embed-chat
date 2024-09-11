@@ -212,6 +212,31 @@ async function createChatWidget(businessId) {
         input.value = '';
         messages.scrollTop = messages.scrollHeight;
 
+        // Add AI typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.innerHTML = `
+          <div class="typing-indicator" style="display: inline-flex; align-items: center; background-color: #f1f0f0; border-radius: 18px 18px 18px 0; padding: 8px 12px; margin: 10px 0;">
+            <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; margin-right: 4px; animation: typing 1s infinite;"></span>
+            <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; margin-right: 4px; animation: typing 1s infinite 0.3s;"></span>
+            <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; animation: typing 1s infinite 0.6s;"></span>
+          </div>
+        `;
+        typingIndicator.style.display = 'flex';
+        typingIndicator.style.justifyContent = 'flex-start';
+        messages.appendChild(typingIndicator);
+        messages.scrollTop = messages.scrollHeight;
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes typing {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+          }
+        `;
+        document.head.appendChild(style);
+
         // Send message to the API
         try {
           const response = await fetch(`${API_URL}/chat`, {
@@ -226,6 +251,11 @@ async function createChatWidget(businessId) {
           });
 
           const data = await response.json();
+
+          // Remove typing indicator
+          messages.removeChild(typingIndicator);
+
+          // Display AI response
           const botMessage = document.createElement('div');
           botMessage.innerHTML = `<div>${data.reply}</div>`;
           botMessage.style.display = 'flex';
@@ -239,6 +269,8 @@ async function createChatWidget(businessId) {
           messages.scrollTop = messages.scrollHeight;
         } catch (error) {
           console.error('Error:', error);
+          // Remove typing indicator in case of error
+          messages.removeChild(typingIndicator);
         }
       }
     };
