@@ -64,12 +64,20 @@ function createChatWidget(businessId) {
   widget.appendChild(toggleButton);
   document.body.appendChild(widget);
 
-  // Add responsive styles
+  // Add Poppins font
+  const fontLink = document.createElement('link');
+  fontLink.href =
+    'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap';
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
+
+  // Update responsive styles to include Poppins font
   const style = document.createElement('style');
   style.textContent = `
     #chat-container {
       max-height: 80vh;
       height: 600px;
+      font-family: 'Poppins', sans-serif;
     }
     @media (max-width: 768px) {
       #chat-widget {
