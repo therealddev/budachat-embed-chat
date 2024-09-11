@@ -35,9 +35,12 @@ async function createChatWidget(businessId) {
   chatContainer.style.marginBottom = '10px';
 
   chatContainer.innerHTML = `
-    <div id="chat-header" style="background-color: #007bff; color: white; padding: 10px; text-align: center; font-weight: bold; position: relative;">
-      Chat
-      <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 20px; cursor: pointer; display: none;">✕</button>
+    <div id="chat-header" style="background-color: transparent; color: #333; padding: 10px; text-align: center; font-weight: bold; position: relative; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center;">
+        <img src="" alt="" style="width: 30px; height: 30px; margin-right: 10px;">
+        <span></span>
+      </div>
+      <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #333; font-size: 20px; cursor: pointer; display: none;">✕</button>
     </div>
     <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
     <div style="padding: 10px;">
@@ -130,16 +133,23 @@ async function createChatWidget(businessId) {
     // Update chat header with business name, logo, and color
     const chatHeader = chatContainer.querySelector('#chat-header');
     chatHeader.innerHTML = `
-      <img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">
-      ${name}
-      <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 20px; cursor: pointer; display: none;">✕</button>
+      <div style="display: flex; align-items: center;">
+        <img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">
+        <span>${name}</span>
+      </div>
+      <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #333; font-size: 20px; cursor: pointer; display: none;">✕</button>
     `;
 
     // Apply color scheme based on business color
     const style = document.createElement('style');
     style.textContent = `
       #chat-header {
-        background-color: ${color} !important;
+        background-color: transparent !important;
+        color: #333 !important;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
       #toggle-button {
         background-color: ${color} !important;
