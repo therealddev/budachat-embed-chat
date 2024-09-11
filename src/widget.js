@@ -48,7 +48,7 @@ async function createChatWidget(businessId) {
         <input id="chat-input" type="text" placeholder="Type a message..." style="flex: 1; padding: 10px; border: none; background: transparent; outline: none;">
         <button id="chat-send" style="width: 40px; height: 40px; border-radius: 50%; background-color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 14 14" style="width: 20px; height: 20px; margin-left: -2px; margin-top: 1px;">
-            <path fill="black" fill-rule="evenodd" d="M13.854.146a.5.5 0 0 1 .113.534l-5 13a.5.5 0 0 1-.922.027l-2.091-4.6L9.03 6.03a.75.75 0 0 0-1.06-1.06L4.893 8.046l-4.6-2.09a.5.5 0 0 1 .028-.923l13-5a.5.5 0 0 1 .533.113" clip-rule="evenodd"/>
+            <path fill="#D1D5DB" fill-rule="evenodd" d="M13.854.146a.5.5 0 0 1 .113.534l-5 13a.5.5 0 0 1-.922.027l-2.091-4.6L9.03 6.03a.75.75 0 0 0-1.06-1.06L4.893 8.046l-4.6-2.09a.5.5 0 0 1 .028-.923l13-5a.5.5 0 0 1 .533.113" clip-rule="evenodd"/>
           </svg>
         </button>
       </div>
@@ -157,10 +157,15 @@ async function createChatWidget(businessId) {
         background-color: ${color} !important;
       }
       #chat-send {
-        background-color: ${color} !important;
+        background-color: white !important;
+        transition: background-color 0.3s ease;
       }
       #chat-send svg path {
-        fill: white !important;
+        fill: #D1D5DB !important; /* Light gray */
+        transition: fill 0.3s ease;
+      }
+      #chat-send.active svg path {
+        fill: #4B5563 !important; /* Dark gray */
       }
       .user-message {
         background-color: ${color} !important;
@@ -197,8 +202,21 @@ async function createChatWidget(businessId) {
     const send = chatContainer.querySelector('#chat-send');
     const messages = chatContainer.querySelector('#chat-messages');
 
+    const updateSendButtonState = () => {
+      if (input.value.trim()) {
+        send.classList.add('active');
+      } else {
+        send.classList.remove('active');
+      }
+    };
+
+    input.addEventListener('input', updateSendButtonState);
+
+    // Initial state
+    updateSendButtonState();
+
     const sendMessage = async () => {
-      if (input.value) {
+      if (input.value.trim()) {
         const userMessage = input.value;
         const messageElement = document.createElement('div');
         messageElement.innerHTML = `<div class="user-message">${userMessage}</div>`;
@@ -284,6 +302,8 @@ async function createChatWidget(businessId) {
           // Remove typing indicator in case of error
           messages.removeChild(typingIndicator);
         }
+
+        updateSendButtonState(); // Update button state after sending
       }
     };
 
