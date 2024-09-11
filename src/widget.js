@@ -12,6 +12,7 @@ function createChatWidget(businessId) {
   const chatContainer = document.createElement('div');
   chatContainer.id = 'chat-container';
   chatContainer.style.width = '400px';
+  chatContainer.style.maxHeight = '80vh'; // Set max-height to 80% of viewport height
   chatContainer.style.height = '600px';
   chatContainer.style.border = '1px solid #ccc';
   chatContainer.style.borderRadius = '10px';
@@ -49,8 +50,15 @@ function createChatWidget(businessId) {
   toggleButton.style.color = 'white';
   toggleButton.style.border = 'none';
   toggleButton.style.cursor = 'pointer';
-  toggleButton.style.fontSize = '24px';
-  toggleButton.innerHTML = '&#128172;'; // Speech bubble emoji
+  toggleButton.style.display = 'flex';
+  toggleButton.style.alignItems = 'center';
+  toggleButton.style.justifyContent = 'center';
+
+  const chatIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20.605 4.17a4.67 4.67 0 0 0-3.33-1.38H6.705a4.71 4.71 0 0 0-4.71 4.72v6.6a4.71 4.71 0 0 0 4.71 4.72h2.33l1.95 1.94c.127.143.284.255.46.33c.175.072.361.11.55.11q.286-.004.55-.11a1.6 1.6 0 0 0 .44-.31l2-2h2.33a4.7 4.7 0 0 0 3.33-1.38a4.8 4.8 0 0 0 1-1.53c.234-.575.357-1.19.36-1.81v-6.6a4.67 4.67 0 0 0-1.4-3.3m-13.24 8.17a1.66 1.66 0 1 1 1.66-1.66a1.67 1.67 0 0 1-1.66 1.66m4.63 0a1.66 1.66 0 1 1 0-3.32a1.66 1.66 0 0 1 0 3.32m4.62 0a1.66 1.66 0 1 1 1.66-1.66a1.67 1.67 0 0 1-1.66 1.66"/></svg>`;
+
+  const closeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41z"/></svg>`;
+
+  toggleButton.innerHTML = chatIcon;
 
   widget.appendChild(chatContainer);
   widget.appendChild(toggleButton);
@@ -59,6 +67,10 @@ function createChatWidget(businessId) {
   // Add responsive styles
   const style = document.createElement('style');
   style.textContent = `
+    #chat-container {
+      max-height: 80vh;
+      height: 600px;
+    }
     @media (max-width: 768px) {
       #chat-widget {
         bottom: 0 !important;
@@ -68,6 +80,7 @@ function createChatWidget(businessId) {
       #chat-container {
         width: 100% !important;
         height: 100vh !important;
+        max-height: none !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -97,6 +110,7 @@ function createChatWidget(businessId) {
   const toggleChat = () => {
     const isChatVisible = chatContainer.style.display !== 'none';
     chatContainer.style.display = isChatVisible ? 'none' : 'flex';
+    toggleButton.innerHTML = isChatVisible ? chatIcon : closeIcon;
     if (window.innerWidth <= 768) {
       toggleButton.style.display = isChatVisible ? 'block' : 'none';
       document.body.style.overflow = isChatVisible ? 'auto' : 'hidden';
@@ -117,15 +131,21 @@ function createChatWidget(businessId) {
       chatContainer.style.removeProperty('bottom');
       chatContainer.style.width = '400px';
       chatContainer.style.height = '600px';
+      chatContainer.style.maxHeight = '80vh';
       chatContainer.style.margin = '0 0 10px 0';
       chatContainer.style.borderRadius = '10px';
-      toggleButton.style.display = 'block';
+      toggleButton.style.display = 'flex';
       document.body.style.overflow = 'auto';
+      toggleButton.innerHTML =
+        chatContainer.style.display !== 'none' ? closeIcon : chatIcon;
     } else {
       // Apply mobile styles
       if (chatContainer.style.display !== 'none') {
         toggleButton.style.display = 'none';
         document.body.style.overflow = 'hidden';
+      } else {
+        toggleButton.style.display = 'flex';
+        toggleButton.innerHTML = chatIcon;
       }
     }
   });
