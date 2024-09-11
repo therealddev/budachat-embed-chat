@@ -84,10 +84,12 @@ async function createChatWidget(businessId) {
   // Update responsive styles to include Poppins font
   const style = document.createElement('style');
   style.textContent = `
+    #chat-container, #chat-input {
+      font-family: 'Poppins', sans-serif;
+    }
     #chat-container {
       max-height: 80vh;
       height: 600px;
-      font-family: 'Poppins', sans-serif;
     }
     @media (max-width: 768px) {
       #chat-widget {
