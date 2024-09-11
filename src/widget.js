@@ -159,7 +159,7 @@ function createChatWidget(businessId) {
       ? 'https://www.budachat.com/api/chat'
       : 'http://localhost:3000/api/chat';
 
-  send.onclick = async () => {
+  const sendMessage = async () => {
     if (input.value) {
       const userMessage = input.value;
       const messageElement = document.createElement('div');
@@ -199,6 +199,18 @@ function createChatWidget(businessId) {
       }
     }
   };
+
+  send.onclick = sendMessage;
+
+  // Add event listener for Enter key press
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent form submission
+      sendMessage();
+    }
+  });
+
+  // ... existing code ...
 }
 
 if (module.hot) {
