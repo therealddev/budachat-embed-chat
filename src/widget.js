@@ -212,10 +212,22 @@ async function createChatWidget(businessId) {
         input.value = '';
         messages.scrollTop = messages.scrollHeight;
 
+        // Add a delay before showing the typing indicator
+        await new Promise((resolve) => setTimeout(resolve, 400));
+
         // Add AI typing indicator
         const typingIndicator = document.createElement('div');
         typingIndicator.innerHTML = `
-          <div class="typing-indicator" style="display: inline-flex; align-items: center; background-color: #f1f0f0; border-radius: 18px 18px 18px 0; padding: 8px 12px; margin: 10px 0;">
+          <div class="typing-indicator" style="
+            display: inline-flex;
+            align-items: center;
+            background-color: #f1f0f0;
+            border-radius: 18px 18px 18px 0;
+            padding: 8px 12px;
+            margin: 10px 0;
+            min-height: 40px;
+            box-sizing: border-box;
+          ">
             <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; margin-right: 4px; animation: typing 1s infinite;"></span>
             <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; margin-right: 4px; animation: typing 1s infinite 0.3s;"></span>
             <span style="width: 6px; height: 6px; background-color: #999; border-radius: 50%; animation: typing 1s infinite 0.6s;"></span>
