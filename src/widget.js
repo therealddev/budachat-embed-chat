@@ -203,10 +203,12 @@ async function createChatWidget(businessId) {
     const messages = chatContainer.querySelector('#chat-messages');
 
     const updateSendButtonState = () => {
-      if (input.value.trim()) {
+      if (input.value.trim() && !isGeneratingResponse) {
         send.classList.add('active');
+        send.disabled = false;
       } else {
         send.classList.remove('active');
+        send.disabled = isGeneratingResponse;
       }
     };
 
@@ -215,8 +217,13 @@ async function createChatWidget(businessId) {
     // Initial state
     updateSendButtonState();
 
+    let isGeneratingResponse = false;
+
     const sendMessage = async () => {
-      if (input.value.trim()) {
+      if (input.value.trim() && !isGeneratingResponse) {
+        isGeneratingResponse = true;
+        send.disabled = true;
+
         const userMessage = input.value;
         const messageElement = document.createElement('div');
         messageElement.innerHTML = `<div class="user-message">${userMessage}</div>`;
@@ -228,6 +235,7 @@ async function createChatWidget(businessId) {
         messageElement.firstChild.style.borderRadius = '18px 18px 0 18px';
         messages.appendChild(messageElement);
         input.value = '';
+        updateSendButtonState();
         messages.scrollTop = messages.scrollHeight;
 
         // Add a delay before showing the typing indicator
@@ -301,19 +309,27 @@ async function createChatWidget(businessId) {
           console.error('Error:', error);
           // Remove typing indicator in case of error
           messages.removeChild(typingIndicator);
+        } finally {
+          isGeneratingResponse = false;
+          send.disabled = false;
+          updateSendButtonState();
         }
-
-        updateSendButtonState(); // Update button state after sending
       }
     };
 
-    send.onclick = sendMessage;
+    send.onclick = () => {
+      if (!isGeneratingResponse) {
+        sendMessage();
+      }
+    };
 
     // Add event listener for Enter key press
     input.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault(); // Prevent form submission
-        sendMessage();
+        if (!isGeneratingResponse) {
+          sendMessage();
+        }
       }
     });
 
