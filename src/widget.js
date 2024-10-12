@@ -10,7 +10,7 @@ const API_URL = 'http://localhost:3000/api';
 
 let chatSessionId;
 
-async function createChatWidget(businessId) {
+async function createChatWidget(chatbotId) {
   // Create elements but don't append them to the document yet
   const widget = document.createElement('div');
   widget.id = 'chat-widget';
@@ -128,13 +128,13 @@ async function createChatWidget(businessId) {
   `;
   document.head.appendChild(style);
 
-  // Fetch business details from the API
+  // Fetch chatbot details from the API
   try {
-    const response = await fetch(`${API_URL}/business/${businessId}`);
-    const businessData = await response.json();
-    const { name, logo_url, color } = businessData;
+    const chatbotResponse = await fetch(`${API_URL}/chatbot/${chatbotId}`);
+    const chatbotData = await chatbotResponse.json();
+    const { name, logo_url, color } = chatbotData;
 
-    // Update chat header with business name, logo, and color
+    // Update chat header with chatbot name, logo, and color
     const chatHeader = chatContainer.querySelector('#chat-header');
     chatHeader.innerHTML = `
       <div style="display: flex; align-items: center;">
@@ -144,7 +144,7 @@ async function createChatWidget(businessId) {
       <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #333; font-size: 20px; cursor: pointer; display: none;">✕</button>
     `;
 
-    // Apply color scheme based on business color
+    // Apply color scheme based on chatbot color
     const style = document.createElement('style');
     style.textContent = `
       #chat-header {
@@ -179,7 +179,7 @@ async function createChatWidget(businessId) {
     // Set toggle button color
     toggleButton.style.backgroundColor = color;
 
-    // Now that we have the business data, append elements to the document
+    // Now that we have the chatbot data, append elements to the document
     widget.appendChild(chatContainer);
     widget.appendChild(toggleButton);
     document.body.appendChild(widget);
@@ -288,7 +288,7 @@ async function createChatWidget(businessId) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              businessId,
+              chatbotId,
               messages: [{ role: 'user', content: userMessage }],
               chatSessionId,
             }),
@@ -390,7 +390,7 @@ async function createChatWidget(businessId) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ businessId }),
+          body: JSON.stringify({ chatbotId }),
         });
         const data = await response.json();
         chatSessionId = data.chatSessionId;
@@ -399,7 +399,7 @@ async function createChatWidget(businessId) {
       }
     };
   } catch (error) {
-    console.error('Error fetching business details:', error);
+    console.error('Error fetching chatbot details:', error);
   }
 }
 
