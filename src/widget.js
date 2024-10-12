@@ -134,11 +134,18 @@ async function createChatWidget(chatbotId) {
     const chatbotData = await chatbotResponse.json();
     const { name, logo_url, color } = chatbotData;
 
+    // Use the provided color or default to #2A52BE if not set
+    const chatbotColor = color || '#2A52BE';
+
     // Update chat header with chatbot name, logo, and color
     const chatHeader = chatContainer.querySelector('#chat-header');
     chatHeader.innerHTML = `
       <div style="display: flex; align-items: center;">
-        <img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">
+        ${
+          logo_url
+            ? `<img src="${logo_url}" alt="${name} logo" style="width: 30px; height: 30px; margin-right: 10px;">`
+            : ''
+        }
         <span>${name}</span>
       </div>
       <button id="close-chat" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #333; font-size: 20px; cursor: pointer; display: none;">✕</button>
@@ -156,7 +163,7 @@ async function createChatWidget(chatbotId) {
         align-items: center;
       }
       #toggle-button {
-        background-color: ${color} !important;
+        background-color: ${chatbotColor} !important;
       }
       #chat-send {
         background-color: white !important;
@@ -170,14 +177,14 @@ async function createChatWidget(chatbotId) {
         fill: #4B5563 !important; /* Dark gray */
       }
       .user-message {
-        background-color: ${color} !important;
+        background-color: ${chatbotColor} !important;
         color: white !important;
       }
     `;
     document.head.appendChild(style);
 
     // Set toggle button color
-    toggleButton.style.backgroundColor = color;
+    toggleButton.style.backgroundColor = chatbotColor;
 
     // Now that we have the chatbot data, append elements to the document
     widget.appendChild(chatContainer);
